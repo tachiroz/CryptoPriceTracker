@@ -13,6 +13,8 @@ symbol_mapping = {
     'ARB': 'ARBUSDT'
 }
 
+history = []  # Список для хранения истории запросов
+
 
 def main(page: ft.Page):
     page.title = "CryptoPriceTracker"
@@ -21,6 +23,7 @@ def main(page: ft.Page):
 
     user_data = ft.TextField(label='Введите название котировки криптовалюты (пример: BTC)', width=400)
     crypto_price = ft.Text('')
+    history_text = ft.Text('История запросов: ')
 
     def get_info(e):
         if len(user_data.value) < 2:
@@ -40,7 +43,15 @@ def main(page: ft.Page):
         except (KeyError, ValueError):
             crypto_price.value = f'Не удалось получить информацию о цене для {symbol}'
 
+        history.append(f'Монета: {symbol}, цена: {price}')
+        update_history_text()
+
         page.update()
+
+    def update_history_text():
+        # Обновление текстового виджета с историей запросов
+        history_text.value = '\n'.join(history)
+
 
     def change_theme(e):
         if page.theme_mode == 'light':
@@ -59,7 +70,9 @@ def main(page: ft.Page):
         ),
         ft.Row([user_data], alignment=ft.MainAxisAlignment.CENTER),
         ft.Row([crypto_price], alignment=ft.MainAxisAlignment.CENTER),
-        ft.Row([ft.FilledTonalButton('Узнать', on_click=get_info)], alignment=ft.MainAxisAlignment.CENTER)
+        ft.Row([ft.FilledButton('Узнать', on_click=get_info)], alignment=ft.MainAxisAlignment.CENTER),
+        ft.Row([ft.Text('История запросов: ')], alignment=ft.MainAxisAlignment.START),
+        ft.Row([history_text], alignment=ft.MainAxisAlignment.START)
     )
 
 
